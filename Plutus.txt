@@ -1,0 +1,51 @@
+# UPGRADE CARDANO or rather Changing Versions---------------------
+
+cd ~/.local/bin
+mv cardano-cli cardano-cli-backup-1.27.0
+mv cardano-node cardano-node-backup-1.27.0
+cd ~/src/cardano-node
+git fetch --all --recurse-submodules --tags
+git tag
+git checkout tags/1.29.0
+cabal update
+cabal build cardano-node cardano-cli
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-node-1.29.0/x/cardano-node/build/cardano-node/cardano-node ~/.local/bin/
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-cli-1.29.0/x/cardano-cli/build/cardano-cli/cardano-cli ~/.local/bin/
+cd ~
+cardano-node --version
+cardano-cli --version
+
+
+# NixOS----------------------------------------------------------
+
+curl -L https://nixos.org/nix/install | sh
+. /home/intensewebsites/.nix-profile/etc/profile.d/nix.sh
+sudo mkdir -p /etc/nix
+sudo vi /etc/nix/nix.conf
+substituters        = https://hydra.iohk.io https://iohk.cachix.org https://cache.nixos.org/
+trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= iohk.cachix.org-1:DpRUyj7h7V830dp/i6Nti+NEO2/nhblbov/8MW7Rqoo= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY
+
+
+#PLUTUS PLAYGROUND------------------------------------------------
+
+git clone https://github.com/input-output-hk/plutus.git
+git clone https://github.com/input-output-hk/plutus-pioneer-program.git
+vi ~/plutus-pioneer-program/code/week01/cabal.project
+cd ~/plutus
+git checkout ea0ca4e9f9821a9dbfc5255fa0f42b6f2b3887c4
+nix build -f default.nix plutus.haskell.packages.plutus-core.components.library
+nix-shell
+#NEW WINDOW
+cd ~/plutus
+nix-shell
+cd ~/plutus/plutus-playground-client
+plutus-playground-server
+#NEW WINDOW
+cd ~/plutus
+nix-shell
+cd ~/plutus/plutus-playground-client
+npm run start
+
+#BROWSE TO WINDOW: https://localhost:8009
+
+

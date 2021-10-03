@@ -1,0 +1,270 @@
+# UBUNTU----------------------------------------------------------
+
+sudo vi /etc/default/grub
+# ADD IF YOU WANT LARGER SCREEN Hyper-V: GRUB_CMDLINE_LINUX_DEFAULT="quiet video=hyperv_fb:1920x1080"
+sudo update-grub
+# In Applet - change IPv4 address to Static, # Add Google DNS
+sudo vi /etc/hosts
+sudo vi /etc/hostname
+
+# ADD 192.168.1.101 ctp1.dtpt.global ctp1
+OR
+cd /etc/NetworkManager/system-connections
+sudo vi 'Wired connection 1.nmconnection'
+
+[connection]
+id=Wired connection 1
+uuid=7a798095-7c50-307f-97f8-1c4557fc1309
+type=ethernet
+autoconnect-priority=-999
+interface-name=eth0
+permissions=
+timestamp=1630194511
+
+[ethernet]
+mac-address-blacklist=
+
+[ipv4]
+address1=192.168.1.151/24,192.168.1.1
+dns=8.8.8.8;8.8.4.4;
+dns-search=dtpt.global
+method=manual
+
+[ipv6]
+addr-gen-mode=stable-privacy
+dns-search=
+method=auto
+
+[proxy]
+
+#ADD 4 LINES TO BOTTOM OF YOUR .bashrc FILE IN YOUR HOME DIRECTORY-----
+
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/usr/loca/lib/pkgconfig:$PKG_CONFIG_PATH"
+export CARDANO_NODE_SOCKET_PATH=~/node/db/node.socket
+export PATH="~/.local/bin:$PATH"
+
+
+# SOURCES--------------------------------------------------------
+
+sudo apt-get update -y
+sudo apt-get install automake build-essential curl pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf -y
+
+
+# CABAL-----------------------------------------------------------
+mkdir -p ~/src
+cd ~/src
+wget https://downloads.haskell.org/~cabal/cabal-install-3.4.0.0/cabal-install-3.4.0.0-x86_64-ubuntu-16.04.tar.xz
+tar -xf cabal-install-3.4.0.0-x86_64-ubuntu-16.04.tar.xz
+rm cabal-install-3.4.0.0-x86_64-ubuntu-16.04.tar.xz cabal.sig
+mkdir -p ~/.local/bin
+mv cabal ~/.local/bin/
+
+
+vi .bashrc and ADD:
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export CARDANO_NODE_SOCKET_PATH=~/node/db/node.socket
+export PATH="~/.local/bin:$PATH"
+source .bashrc
+cabal update
+cabal --version
+
+
+# GHC----------------------------------------------------------
+
+mkdir -p ~/src
+cd ~/src
+wget https://downloads.haskell.org/ghc/8.10.4/ghc-8.10.4-x86_64-deb10-linux.tar.xz
+tar -xf ghc-8.10.4-x86_64-deb10-linux.tar.xz
+rm ghc-8.10.4-x86_64-deb10-linux.tar.xz
+cd ghc-8.10.4
+./configure
+sudo make install
+cd ..
+ghc --version
+
+
+# LIBSODIUM- ONLY NEEDED FOR MANUAL CABAL/GHC INSTALL----------
+
+mkdir -p ~/src
+cd ~/src
+git clone https://github.com/input-output-hk/libsodium
+cd libsodium
+git checkout 66f017f1
+./autogen.sh
+./configure
+make
+sudo make install
+cd ..
+
+
+CARDANO-NODE-------------------------------------------------
+
+mkdir -p ~/src
+cd ~/src
+git clone https://github.com/input-output-hk/cardano-node.git
+cd cardano-node
+git fetch --all --recurse-submodules --tags
+git tag
+git checkout tags/1.29.0
+
+cabal configure --with-compiler=ghc-8.10.4
+cabal clean
+cabal update
+cabal build all
+
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-node-1.27.0/x/cardano-node/build/cardano-node/cardano-node ~/.local/bin/
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-cli-1.27.0/x/cardano-cli/build/cardano-cli/cardano-cli ~/.local/bin/
+cardano-node --version
+cardano-cli --version
+
+
+# TESTNET NODE-------------------------------------------------------
+cd ~
+mkdir node
+cd node
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-config.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-shelley-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-byron-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-alonzo-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-topology.json
+
+# OR MAINNET NODE -- BUT NOT BOTH!!!----------------------------------
+cd ~
+mkdir node
+cd node
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-config.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-byron-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-shelley-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-alonzo-genesis.json
+wget https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-topology.json
+
+
+# RUN--------------------------------------------------------
+cd ~/node
+cardano-node run \
+ --topology /home/dtptoken/node/testnet-topology.json \
+ --database-path /home/dtptoken/node/db \
+ --socket-path /home/dtptoken/node/db/node.socket \
+# ######CHANGE IP --host-addr 10.182.0.2 \
+ --port 3001 \
+ --config /home/dtptoken/node/testnet-config.json
+
+
+# GET TIP----------------------------------------------------
+
+cardano-cli query tip --testnet-magic 1097911063
+OR
+cardano-cli query tip --mainnet
+
+
+# CHECK BALANCE----------------------------------------------------
+cardano-cli query utxo \
+--address $(cat ~/tokens/payment.addr) \
+-- testnet-magic 1097911063
+
+
+
+# UPGRADE CARDANO or rather Changing Versions---------------------
+
+cd ~/.local/bin
+mv cardano-cli cardano-cli-backup-1.27.0
+mv cardano-node cardano-node-backup-1.27.0
+cd ~/src/cardano-node
+git fetch --all --recurse-submodules --tags
+git tag
+git checkout tags/1.29.0
+cabal update
+cabal build cardano-node cardano-cli
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-node-1.29.0/x/cardano-node/build/cardano-node/cardano-node ~/.local/bin/
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-cli-1.29.0/x/cardano-cli/build/cardano-cli/cardano-cli ~/.local/bin/
+cd ~
+cardano-node --version
+cardano-cli --version
+
+
+# NixOS----------------------------------------------------------
+
+curl -L https://nixos.org/nix/install | sh
+. /home/dtptoken/.nix-profile/etc/profile.d/nix.sh
+sudo mkdir -p /etc/nix
+sudo vi /etc/nix/nix.conf
+substituters        = https://hydra.iohk.io https://iohk.cachix.org https://cache.nixos.org/
+trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= iohk.cachix.org-1:DpRUyj7h7V830dp/i6Nti+NEO2/nhblbov/8MW7Rqoo= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY
+
+
+#PLUTUS PLAYGROUND------------------------------------------------
+
+git clone https://github.com/input-output-hk/plutus.git
+git clone https://github.com/input-output-hk/plutus-pioneer-program.git
+vi ~/plutus-pioneer-program/code/week01/cabal.project
+cd ~/plutus
+git checkout ea0ca4e9f9821a9dbfc5255fa0f42b6f2b3887c4
+nix build -f default.nix plutus.haskell.packages.plutus-core.components.library
+nix-shell
+#NEW WINDOW
+cd ~/plutus
+nix-shell
+cd ~/plutus/plutus-playground-client
+plutus-playground-server
+#NEW WINDOW
+cd ~/plutus
+nix-shell
+cd ~/plutus/plutus-playground-client
+npm run start
+
+#BROWSE TO WINDOW: https://localhost:8009
+
+
+# DEBIAN----------------------------------------------------------
+apt update -y
+apt install sudo
+usermod -aG sudo dtptoken
+sudo vi /etc/network/interfaces
+source /etc/network/interfaces.d/*
+auto lo
+iface lo inet loopback
+allow-hotplug eth0
+
+cd /etc/network/interfaces.d
+sudo vi /etc/network/interfaces.d/eth0
+iface eth0 inet static
+      address 192.168.1.103
+      netmask 255.255.255.0
+      gateway 192.168.1.1
+      dns-domain dtpt.global
+      dns-nameservers 8.8.8.8 8.8.4.4
+vi /etc/resolv.conf
+domain dtpt.global
+search dtpt.global
+nameserver 24.48.160.2
+nameserver 24.48.160.3
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+sudo vi /etc/hosts
+# ADD 192.168.1.103 ctp1.dtpt.global ctp1
+
+sudo vi /etc/hostname
+sudo apt install curl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
