@@ -1,0 +1,114 @@
+# EDIT POLICY.SCRIPT AND RE-CREATE POLICYID ONLY IF POLICY.SCRIPT CHANGED----------------- ₳ ₳ ₳
+# SEE BEST FULL INSTRUCTIONS HERE: https://developers.cardano.org/
+
+vi policy/policy.script
+cardano-cli transaction policyid --script-file ./policy/policy.script >> policy/policyID
+
+# EDIT METADATA.JSON-----------------------------------------------
+vi metadata.json
+
+# MINTING----------------------------------------------------------
+cd ~/tokens
+testnet="mainnet"
+tokenname1="DTPT"
+tokenamount="45000000000"       
+output="0"
+address=$(cat ~/tokens/payment.addr)
+policyid=$(cat policy/policyID)
+slotnumber="41683767"
+script="policy/policy.script"
+txhash="8596c535841c6b175a53abd37c2f05218170dcbd0e6b07cdf58f5ef7f800cd69"
+txix="0"
+funds="9802203"
+fee="300000"
+
+# CHECK BALANCE AND NEEDED VARIABLES -------------------------------
+
+cardano-cli query tip --mainnet
+cardano-cli query utxo --address $address --mainnet
+echo $testnet
+echo $tokenname1
+echo $tokenamount
+echo $address
+echo $policyid
+echo $receiver
+echo $receiver_output
+echo $txhash
+echo $txix
+echo $funds
+echo $fee
+echo $output
+echo $slotnumber
+echo $script
+
+cardano-cli transaction build-raw \
+ --fee $fee \
+ --tx-in $txhash#$txix \
+ --tx-out $address+$output+"$tokenamount $policyid.$tokenname1" \
+ --mint="$tokenamount $policyid.$tokenname1" \
+ --minting-script-file $script \
+ --metadata-json-file metadata.json  \
+ --out-file matx.raw
+
+fee=$(cardano-cli transaction calculate-min-fee --tx-body-file matx.raw --tx-in-count 1 --tx-out-count 1 --witness-count 1 --$testnet --protocol-params-file protocol.json | cut -d " " -f1)
+
+output=$(expr $funds - $fee)
+
+# REBUILD AGAIN-------------------------------------------------
+
+cardano-cli transaction build-raw \
+ --fee $fee \
+ --tx-in $txhash#$txix \
+ --tx-out $address+$output+"$tokenamount $policyid.$tokenname1" \
+ --mint="$tokenamount $policyid.$tokenname1" \
+ --minting-script-file $script \
+ --metadata-json-file metadata.json  \
+ --out-file matx.raw
+
+
+cardano-cli transaction sign  \
+--signing-key-file payment.skey  \
+--signing-key-file policy/policy.skey  \
+--$testnet --tx-body-file matx.raw  \
+--out-file matx.signed
+
+cardano-cli transaction submit --tx-file matx.signed --mainnet
+
+
+# SEND TOKEN TO DAEDALUS WALLET--------------------------------------------------------
+
+fee="30000"
+receiver="addr1qxffrj4jkhj09p43d9zfdl7dad20yaf3gqltawjrd2aynvuntz85zwu07eht0qanfv7e3qnmeyfa8k7cfxt8te3arwvsg59myh"
+receiver_output="6000000"
+txhash="8596c535841c6b175a53abd37c2f05218170dcbd0e6b07cdf58f5ef7f800cd69"
+txix="0"
+funds="9802203"
+
+cardano-cli transaction build-raw  \
+--fee $fee  \
+--tx-in $txhash#$txix  \
+--tx-out $receiver+$receiver_output+"45000000000 $policyid.$tokenname1"  \
+--tx-out $address+$output+"0 $policyid.$tokenname1"  \
+--out-file rec_matx.raw
+
+# CALC FEES------------------------------------------------------------------------------------
+
+fee=$(cardano-cli transaction calculate-min-fee --tx-body-file rec_matx.raw --tx-in-count 1 --tx-out-count 2 --witness-count 1 --$testnet --protocol-params-file protocol.json | cut -d " " -f1)
+
+# THIS TIME RECEIVER_OUTPUT IS SUBTRACTED---------------------------------------------------
+
+output=$(expr $funds - $fee - $receiver_output)
+
+# RECALCULATE------------------------------------------------------------------------------------
+
+cardano-cli transaction build-raw  \
+--fee $fee  \
+--tx-in $txhash#$txix  \
+--tx-out $receiver+$receiver_output+"45000000000 $policyid.$tokenname1"  \
+--tx-out $address+$output+"0 $policyid.$tokenname1"  \
+--out-file rec_matx.raw
+
+cardano-cli transaction sign --signing-key-file payment.skey --mainnet --tx-body-file rec_matx.raw --out-file rec_matx.signed
+
+cardano-cli transaction submit --tx-file rec_matx.signed --mainnet
+
