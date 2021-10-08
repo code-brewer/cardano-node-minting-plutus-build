@@ -1,0 +1,50 @@
+{
+  "721": {
+    "d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e": {
+      "DTPTNFTISeeANewWorldNo002": {
+        "DTPT": "Defund The Police Token",
+        "description": "DTPT Freshly Minted Smells So Good I SEE A NEW WORLD NFT0002",
+        "files": [
+          {
+            "src": "ipfs://QmfDwJwaB6JPobAsYBeYYfq1hvwrjr2sqxW9Dnj6zqWEm3",
+            "name": "DTPT Freshly Minted Smells So Good I SEE A NEW WORLD NFT0002",
+            "id": "2",
+            "mediaType": "image/jpg"
+          }
+        ],
+        "Art": [
+          "Digital drawing"
+        ],
+        "Artist": [
+          "The DTPT Creators"
+        ],
+        "Year": [
+          "2021"
+        ],
+       "Website": [
+          "https://dtpt.global"
+        ],
+       "IPFS Website": [
+          "https://dtptoken.x"
+        ],
+        "Twitter": [
+          "https://twitter.com/DTPToken"
+        ],
+        "rarity": "Super Rare",
+        "Tier": "A",
+        "trait": [
+          "Vision",
+          "Second NFT"
+        ],
+        "image": "ipfs://QmfDwJwaB6JPobAsYBeYYfq1hvwrjr2sqxW9Dnj6zqWEm3",
+        "minting": {
+          "type": "time-lock-policy",
+          "blockchain": "cardano",
+          "mintedBeforeSlotNumber": 43000000
+        },
+        "symbol": "DTPT",
+        "tokenType": "NFT"
+      }
+    }
+  }
+}

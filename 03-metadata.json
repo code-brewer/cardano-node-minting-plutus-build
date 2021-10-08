@@ -1,0 +1,53 @@
+{
+  "721": {
+    "d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e": {
+      "DTPTNFTIBuiltOnCardanoNo003": {
+        "DTPT": "Defund The Police Token",
+        "description": "DTPT Freshly Minted Smells So Good BUILT ON CARDANO NFT0003",
+        "files": [
+          {
+            "src": "ipfs://QmU1iNX42JYWCfWfWjhBrBi4eHYZGY44zNBrvGNcrCRDqe",
+            "name": "DTPT Freshly Minted Smells So Good BUILT ON CARDANO NFT0003",
+            "id": "3",
+            "mediaType": "image/jpg"
+          }
+        ],
+        "Art": [
+          "Digital drawing"
+        ],
+        "Artist": [
+          "The DTPT Creators"
+        ],
+        "Signed by": [
+          "The DTPT Creators"
+        ],
+        "Year": [
+          "2021"
+        ],
+       "Website": [
+          "https://dtpt.global"
+        ],
+       "IPFS Website": [
+          "https://dtptoken.x"
+        ],
+        "Twitter": [
+          "https://twitter.com/DTPToken"
+        ],
+        "rarity": "Rare",
+        "Tier": "A",
+        "trait": [
+          "Cardano",
+          "Third NFT"
+        ],
+        "image": "ipfs://QmU1iNX42JYWCfWfWjhBrBi4eHYZGY44zNBrvGNcrCRDqe",
+        "minting": {
+          "type": "time-lock-policy",
+          "blockchain": "cardano",
+          "mintedBeforeSlotNumber": 43000000
+        },
+        "symbol": "DTPT",
+        "tokenType": "NFT"
+      }
+    }
+  }
+}
