@@ -98,7 +98,7 @@ cardano-cli transaction sign  --signing-key-file payment.skey  --signing-key-fil
 cardano-cli transaction submit --tx-file burning.signed --mainnet
 
 
-# SEND TOKEN TO DAEDALUS WALLET--------------------------------------------------------
+# OLD WAY - SEND TOKEN TO DAEDALUS WALLET--------------------------------------------------------
 cardano-cli query tip --mainnet
 cardano-cli query utxo --address $address --mainnet
 
@@ -138,4 +138,17 @@ cardano-cli transaction build-raw  \
 
 cardano-cli transaction sign --signing-key-file payment.skey --mainnet --tx-body-file rec_matx.raw --out-file rec_matx.signed
 
+cardano-cli transaction submit --tx-file rec_matx.signed --mainnet
+
+# -----------------------------------------------------------------------------------------------
+# NEW WAY - WHEN YOU HAVE MULTIPLE UTXO INPUTS AND SENDING OUT TO SELF AND ANOTHER WALLET.-------
+
+cardano-cli transaction build --alonzo-era \
+--tx-in 956dd36ab184f53f36e5315b95ef49a953d47d71d7321d02a1f5ee4ef055074a#0 \
+--tx-in d4995123bee0162a27db99c033974841d931b8956d5fdeaa0f7d5bce8edc17f2#1 \
+--tx-out "addr1q90rfuhz0w04kvdcce8pxwdddnmrlnjw8zv5y7el0mpsetvntz85zwu07eht0qanfv7e3qnmeyfa8k7cfxt8te3arwvsu2h0jg+2000000+1 d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e.DTPTNFTISeeANewWorldNo002" \
+--change-address addr1vygu4qjucddcs0lcaxhmnzmxv7naluvc44ydpgj30cf7mhsa5nfwk \
+--out-file rec_matx.raw --mainnet
+
+cardano-cli transaction sign --signing-key-file payment.skey --mainnet --tx-body-file rec_matx.raw --out-file rec_matx.signed
 cardano-cli transaction submit --tx-file rec_matx.signed --mainnet
