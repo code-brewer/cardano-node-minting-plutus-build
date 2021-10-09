@@ -1,0 +1,65 @@
+Token I want to move to off-server to Daedalus Wallet to: addr1q90rfuhz0w04kvdcce8pxwdddnmrlnjw8zv5y7el0mpsetvntz85zwu07eht0qanfv7e3qnmeyfa8k7cfxt8te3arwvsu2h0jg
+https://pool.pm/d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e.DTPTNFTISeeANewWorldNo002
+
+cd ~/tokens
+testnet="mainnet"
+tokenname1="DTPTNFTISeeANewWorldNo002"
+tokenamount="1"
+output="0"
+address=$(cat ~/tokens/payment.addr)
+policyid=$(cat policy/policyID)
+slotnumber="43000000"
+script="policy/policy.script"
+txhash="956dd36ab184f53f36e5315b95ef49a953d47d71d7321d02a1f5ee4ef055074a"
+txix="0"
+fee="300000"
+burnfee="0"
+burnoutput="0"
+cardano-cli query tip --mainnet
+cardano-cli query utxo --address $address --mainnet
+fee="30000"
+receiver="addr1q90rfuhz0w04kvdcce8pxwdddnmrlnjw8zv5y7el0mpsetvntz85zwu07eht0qanfv7e3qnmeyfa8k7cfxt8te3arwvsu2h0jg"
+receiver_output="1400000"
+txhash="956dd36ab184f53f36e5315b95ef49a953d47d71d7321d02a1f5ee4ef055074a"
+txix="0"
+funds="7189091"
+output="0"
+
+echo $address
+addr1vygu4qjucddcs0lcaxhmnzmxv7naluvc44ydpgj30cf7mhsa5nfwk
+
+cardano-cli query utxo --address $address --mainnet
+                           TxHash                                 TxIx        Amount
+----------------------------------------------------------------------------------------------
+956dd36ab184f53f36e5315b95ef49a953d47d71d7321d02a1f5ee4ef055074a     0        5789091 lovelace + 1 d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e.DTPTNFTISeeANewWorldNo002 + TxOutDatumHashNone
+d4995123bee0162a27db99c033974841d931b8956d5fdeaa0f7d5bce8edc17f2     1        1400000 lovelace + TxOutDatumHashNone
+
+
+# CALCULATE------------------------------------------------------------------------------------
+
+cardano-cli transaction build-raw \
+             --fee $fee \
+             --tx-in 956dd36ab184f53f36e5315b95ef49a953d47d71d7321d02a1f5ee4ef055074a#0 \
+             --tx-in d4995123bee0162a27db99c033974841d931b8956d5fdeaa0f7d5bce8edc17f2#1 \
+             --tx-out addr1q90rfuhz0w04kvdcce8pxwdddnmrlnjw8zv5y7el0mpsetvntz85zwu07eht0qanfv7e3qnmeyfa8k7cfxt8te3arwvsu2h0jg+1400000+"1 d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e.DTPTNFTISeeANewWorldNo002" \
+             --tx-out $address+$output+"0 d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e.DTPTNFTISeeANewWorldNo002"  \
+             --out-file rec_matx.raw
+
+# CALC FEES------------------------------------------------------------------------------------
+
+fee=$(cardano-cli transaction calculate-min-fee --tx-body-file rec_matx.raw --tx-in-count 2 --tx-out-count 2 --witness-count 1 --mainnet --protocol-params-file protocol.json | cut -d " " -f1)
+output=$(expr $funds - $fee - $receiver_output)
+echo $address
+echo $funds
+echo $fee
+echo $receiver_output
+echo $output
+
+
+# RECALCULATE ABOVE THEN SIGN-------------------------------------------------------------------
+
+cardano-cli transaction sign --signing-key-file payment.skey --mainnet --tx-body-file rec_matx.raw --out-file rec_matx.signed
+
+cardano-cli transaction submit --tx-file rec_matx.signed --mainnet
+
+Command failed: transaction submit  Error: Error while submitting tx: ShelleyTxValidationError ShelleyBasedEraAlonzo (ApplyTxError [UtxowFailure (WrappedShelleyEraFailure (UtxoFailure (OutputTooSmallUTxO [(Addr Mainnet (KeyHashObj (KeyHash "5e34f2e27b9f5b31b8c64e1339ad6cf63fce4e3899427b3f7ec30cad")) (StakeRefBase (KeyHashObj (KeyHash "93588f413b8ff66eb783b34b3d98827bc913d3dbd8499675e63d1b99"))),Value 1400000 (fromList [(PolicyID {policyID = ScriptHash "d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e"},fromList [("DTPTNFTISeeANewWorldNo002",1)])]),SNothing),(Addr Mainnet (KeyHashObj (KeyHash "11ca825cc35b883ff8e9afb98b6667a7dff198ad48d0a2517e13edde")) StakeRefNull,Value 0 (fromList []),SNothing)]))),UtxowFailure (WrappedShelleyEraFailure (UtxoFailure (ValueNotConservedUTxO (Value 7189091 (fromList [(PolicyID {policyID = ScriptHash "d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e"},fromList [("DTPTNFTISeeANewWorldNo002",1)])])) (Value 1430000 (fromList [(PolicyID {policyID = ScriptHash "d095c76851b71c05235ebfa24725fc20faba299bc7a74a43d79e8d5e"},fromList [("DTPTNFTISeeANewWorldNo002",1)])]))))),UtxowFailure (WrappedShelleyEraFailure (UtxoFailure (FeeTooSmallUTxO (Coin 170605) (Coin 30000))))])
