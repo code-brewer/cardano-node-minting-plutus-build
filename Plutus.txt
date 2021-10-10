@@ -19,7 +19,7 @@ cardano-cli --version
 # NixOS----------------------------------------------------------
 
 curl -L https://nixos.org/nix/install | sh
-. /home/intensewebsites/.nix-profile/etc/profile.d/nix.sh
+. /home/dtptoken/.nix-profile/etc/profile.d/nix.sh
 sudo mkdir -p /etc/nix
 sudo vi /etc/nix/nix.conf
 substituters        = https://hydra.iohk.io https://iohk.cachix.org https://cache.nixos.org/
