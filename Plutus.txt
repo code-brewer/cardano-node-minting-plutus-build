@@ -1,16 +1,16 @@
 # UPGRADE CARDANO or rather Changing Versions---------------------
 
 cd ~/.local/bin
-mv cardano-cli cardano-cli-backup-1.29.0
-mv cardano-node cardano-node-backup-1.29.0
+sudo mv cardano-cli cardano-cli-backup-1.30.1
+sudo mv cardano-node cardano-node-backup-1.30.1
 cd ~/src/cardano-node
 git fetch --all --recurse-submodules --tags
 git tag
-git checkout tags/1.30.1
+git checkout tags/1.31.0
 cabal update
 cabal build cardano-node cardano-cli
-cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-node-1.30.1/x/cardano-node/build/cardano-node/cardano-node ~/.local/bin/
-cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-cli-1.30.1/x/cardano-cli/build/cardano-cli/cardano-cli ~/.local/bin/
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-node-1.31.0/x/cardano-node/build/cardano-node/cardano-node ~/.local/bin/
+cp -p dist-newstyle/build/x86_64-linux/ghc-8.10.4/cardano-cli-1.31.0/x/cardano-cli/build/cardano-cli/cardano-cli ~/.local/bin/
 cd ~
 cardano-node --version
 cardano-cli --version
